@@ -117,16 +117,16 @@ float tune, fine, random, overdrive;
 float muff, muffvel, sizevel, velsens, volume, modwhl;
 
 float tfrqa, tfrqb;
-#define LUTSZ 10
-float dlfolut[LUTSZ + 1];
+#define mdaepiano_LUTSZ 10
+float dlfolut[mdaepiano_LUTSZ + 1];
 
 bool pgate;
 
 float dlfoi;
 float dfrac;]]></code.declaration>
-      <code.init><![CDATA[#define WAVELEN 422418 // Size of data file/array in shorts
-#define WAVEBYTES (WAVELEN*2) // Size of data in bytes
-#define WAVEPATH "/shared/mdaepiano/mdaEPianoData.raw" // Location of data on SD card (see "file-depends" in the XML)
+      <code.init><![CDATA[#define mdaepiano_WAVELEN 422418 // Size of data file/array in shorts
+#define mdaepiano_WAVEBYTES (mdaepiano_WAVELEN*2) // Size of data in bytes
+#define mdaepiano_WAVEPATH "/shared/mdaepiano/mdaEPianoData.raw" // Location of data on SD card (see "file-depends" in the XML)
 
 { //Waveform data and keymapping
   kgrp[ 0].root = 36;  kgrp[ 0].high = 39; //C1
@@ -177,7 +177,7 @@ float dfrac;]]></code.declaration>
 }
 
 if(!EPianoData::epianoData){
-	short* epianoData = (short*) sdram_malloc(WAVEBYTES);
+	short* epianoData = (short*) sdram_malloc(mdaepiano_WAVEBYTES);
 	if(!epianoData){
 	   LogTextMessage("Malloc mdaEPianoData in sdram failed!");
 	   return;
@@ -189,19 +189,19 @@ if(!EPianoData::epianoData){
 	UINT bytes_read;
 	int i;
 	
-	err = f_open(&FileObject, WAVEPATH, FA_READ | FA_OPEN_EXISTING);
+	err = f_open(&FileObject, mdaepiano_WAVEPATH, FA_READ | FA_OPEN_EXISTING);
 	if (err != FR_OK) {
-	   LogTextMessage("Open failed: %s", WAVEPATH);
+	   LogTextMessage("Open failed: %s", mdaepiano_WAVEPATH);
 	   // clear array
-	   for (i = 0; i < WAVELEN; i++) {
+	   for (i = 0; i < mdaepiano_WAVELEN; i++) {
 	       epianoData[i] = 0;
 	   }
 	   return;
 	}
-	err = f_read(&FileObject, epianoData, WAVEBYTES, &bytes_read);
-	if (err != FR_OK) {LogTextMessage("Read failed %s\n", WAVEPATH); return;}
+	err = f_read(&FileObject, epianoData, mdaepiano_WAVEBYTES, &bytes_read);
+	if (err != FR_OK) {LogTextMessage("Read failed %s\n", mdaepiano_WAVEPATH); return;}
 	err = f_close(&FileObject);
-	if (err != FR_OK) {LogTextMessage("Close failed %s\n", WAVEPATH); return;}
+	if (err != FR_OK) {LogTextMessage("Close failed %s\n", mdaepiano_WAVEPATH); return;}
 
 	EPianoData::epianoData = epianoData;
 	LogTextMessage("mdaEPiano loading sample complete, SDRAM free %d", sdram_get_free() );
@@ -245,8 +245,8 @@ tfrqa = 1.0f - powf(M_E, -iFs * 14000.0f);
 tfrqb = 1.0f - powf(M_E, -iFs * 5000.0f);
 
 //Generate lookup table for lfo rate
-for(int i=0; i <= LUTSZ; i++){
-	dlfolut[i] = 6.283f * iFs * powf(M_E, 6.22f * ((float)i/(float)LUTSZ) - 2.61f); //lfo rate
+for(int i=0; i <= mdaepiano_LUTSZ; i++){
+	dlfolut[i] = 6.283f * iFs * powf(M_E, 6.22f * ((float)i/(float)mdaepiano_LUTSZ) - 2.61f); //lfo rate
 }
 
 pgate = 0;]]></code.init>
@@ -259,7 +259,7 @@ if(mdaepiano_param_3 > 0.5f) tfrq = tfrqa; else tfrq = tfrqb; //treble freq
 rmod = lmod = mdaepiano_param_4 + mdaepiano_param_4 - 1.0f; //lfo depth
 if(mdaepiano_param_4 < 0.5f) rmod = -rmod;
 
-dlfoi = mdaepiano_param_5*LUTSZ;
+dlfoi = mdaepiano_param_5*mdaepiano_LUTSZ;
 dfrac = dlfoi - ((int)dlfoi);
 float a = dlfolut[(int)dlfoi];
 float b = dlfolut[(int)dlfoi + 1];
