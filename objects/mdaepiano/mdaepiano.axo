@@ -64,20 +64,19 @@ Don&apos;t forget to connect velocity!</sDescription>
       <code.declaration><![CDATA[#define M_E 2.71828182845904523536f
 
 // Parameters in 0 to 1 floating point format
-#define param_0   q27_to_float(param_EnvelopeDecay)
-#define param_1   q27_to_float(param_EnvelopeRelease)
-#define param_2   q27_to_float(param_Hardness)
-#define param_3   q27_to_float(param_TrebleBoost)
-#define param_4   q27_to_float(param_Modulation)
-#define param_5   q27_to_float(param_LFORate)
-#define param_6   q27_to_float(param_VelocitySense)
-#define param_7   q27_to_float(param_StereoWidth)
-#define param_9   q27_to_float(param_FineTuning)
-#define param_10  q27_to_float(param_RandomTuning)
-#define param_11  q27_to_float(param_Overdrive)
+#define mdaepiano_param_0   q27_to_float(param_EnvelopeDecay)
+#define mdaepiano_param_1   q27_to_float(param_EnvelopeRelease)
+#define mdaepiano_param_2   q27_to_float(param_Hardness)
+#define mdaepiano_param_3   q27_to_float(param_TrebleBoost)
+#define mdaepiano_param_4   q27_to_float(param_Modulation)
+#define mdaepiano_param_5   q27_to_float(param_LFORate)
+#define mdaepiano_param_6   q27_to_float(param_VelocitySense)
+#define mdaepiano_param_7   q27_to_float(param_StereoWidth)
+#define mdaepiano_param_9   q27_to_float(param_FineTuning)
+#define mdaepiano_param_10  q27_to_float(param_RandomTuning)
+#define mdaepiano_param_11  q27_to_float(param_Overdrive)
 
-#define SUSTAIN 128
-#define SILENCE 0.0001f  //voice choking
+#define mdaepiano_SUSTAIN 128
 
 //voice state
 int delta;  //sample playback
@@ -252,27 +251,27 @@ for(int i=0; i <= LUTSZ; i++){
 
 pgate = 0;]]></code.init>
       <code.krate><![CDATA[//parameter change
-size = (int)(12.0f * param_2 - 6.0f);
+size = (int)(12.0f * mdaepiano_param_2 - 6.0f);
 
-treb = 4.0f * param_3 * param_3 - 1.0f; //treble gain
-if(param_3 > 0.5f) tfrq = tfrqa; else tfrq = tfrqb; //treble freq
+treb = 4.0f * mdaepiano_param_3 * mdaepiano_param_3 - 1.0f; //treble gain
+if(mdaepiano_param_3 > 0.5f) tfrq = tfrqa; else tfrq = tfrqb; //treble freq
 
-rmod = lmod = param_4 + param_4 - 1.0f; //lfo depth
-if(param_4 < 0.5f) rmod = -rmod;
+rmod = lmod = mdaepiano_param_4 + mdaepiano_param_4 - 1.0f; //lfo depth
+if(mdaepiano_param_4 < 0.5f) rmod = -rmod;
 
-dlfoi = param_5*LUTSZ;
+dlfoi = mdaepiano_param_5*LUTSZ;
 dfrac = dlfoi - ((int)dlfoi);
 float a = dlfolut[(int)dlfoi];
 float b = dlfolut[(int)dlfoi + 1];
 dlfo = a + dfrac * (b - a); //lfo rate (linear interpolation)
 
-velsens = 1.0f + param_6 + param_6;
-if(param_6 < 0.25f) velsens -= 0.75f - 3.0f * param_6;
+velsens = 1.0f + mdaepiano_param_6 + mdaepiano_param_6;
+if(mdaepiano_param_6 < 0.25f) velsens -= 0.75f - 3.0f * mdaepiano_param_6;
 
-width = 0.03f * param_7;
-fine = param_9 - 0.5f;
-random = 0.077f * param_10 * param_10;
-overdrive = 1.8f * param_11;]]></code.krate>
+width = 0.03f * mdaepiano_param_7;
+fine = mdaepiano_param_9 - 0.5f;
+random = 0.077f * mdaepiano_param_10 * mdaepiano_param_10;
+overdrive = 1.8f * mdaepiano_param_11;]]></code.krate>
       <code.srate><![CDATA[//Note on and off
 {
   float l=99.0f;
@@ -305,7 +304,7 @@ overdrive = 1.8f * param_11;]]></code.krate>
     
     if(note > 60) env *= powf(M_E, 0.01f * (float)(60 - note)); //new! high notes quieter
 
-    l = 50.0f + param_4 * param_4 * muff + muffvel * (float)(velocity - 64); //muffle
+    l = 50.0f + mdaepiano_param_4 * mdaepiano_param_4 * muff + muffvel * (float)(velocity - 64); //muffle
     if(l < (55.0f + 0.4f * note)) l = 55.0f + 0.4f * note;
     if(l > 210.0f) l = 210.0f;
     ff = l * l * iFs;
@@ -318,11 +317,11 @@ overdrive = 1.8f * param_11;]]></code.krate>
     outl = l + l - outr;
 
     if(note < 44) note = 44; //limit max decay length
-    dec = powf(M_E, -iFs * powf(M_E, -1.0f + 0.03f * note - 2.0f * param_0));
+    dec = powf(M_E, -iFs * powf(M_E, -1.0f + 0.03f * note - 2.0f * mdaepiano_param_0));
   }
   }else if(!inlet_gate && pgate) { // Falling edge i.e. note off
-      if(note < 94 || note == SUSTAIN){ //no release on highest notes
-        dec = powf(M_E, -iFs * powf(M_E, 2.0f + 0.017f * note - 2.0 * param_1));
+      if(note < 94 || note == mdaepiano_SUSTAIN){ //no release on highest notes
+        dec = powf(M_E, -iFs * powf(M_E, 2.0f + 0.017f * note - 2.0 * mdaepiano_param_1));
       }
   }
 }

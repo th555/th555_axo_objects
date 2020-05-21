@@ -76,17 +76,17 @@ Don&apos;t forget to connect velocity!</sDescription>
       <code.declaration><![CDATA[#define M_E 2.71828182845904523536f
 
 // Parameters in 0 to 1 floating point format
-#define param_0    q27_to_float(param_Decay)
-#define param_1    q27_to_float(param_Release)
-#define param_2    q27_to_float(param_Hardness)
-#define param_3    q27_to_float(param_Vel_gt_Hard)
-#define param_4    q27_to_float(param_Muffle)
-#define param_5    q27_to_float(param_Vel_gt_Muff)
-#define param_6    q27_to_float(param_Vel_space_Curve)
-#define param_7    q27_to_float(param_Stereo)
-#define param_9    q27_to_float(param_Tune)
-#define param_10   q27_to_float(param_Random)
-#define param_11   q27_to_float(param_Stretch)
+#define mdapiano_param_0    q27_to_float(param_Decay)
+#define mdapiano_param_1    q27_to_float(param_Release)
+#define mdapiano_param_2    q27_to_float(param_Hardness)
+#define mdapiano_param_3    q27_to_float(param_Vel_gt_Hard)
+#define mdapiano_param_4    q27_to_float(param_Muffle)
+#define mdapiano_param_5    q27_to_float(param_Vel_gt_Muff)
+#define mdapiano_param_6    q27_to_float(param_Vel_space_Curve)
+#define mdapiano_param_7    q27_to_float(param_Stereo)
+#define mdapiano_param_9    q27_to_float(param_Tune)
+#define mdapiano_param_10   q27_to_float(param_Random)
+#define mdapiano_param_11   q27_to_float(param_Stretch)
 
 //voice state
 int  delta;  //sample playback
@@ -126,12 +126,12 @@ float tune, fine, random, stretch;
 float muff, muffvel, sizevel, velsens, volume;
 
 bool pgate; // previous gate signal]]></code.declaration>
-      <code.init><![CDATA[#define WAVELEN 586349 // Size of data file/array in shorts
-#define WAVEBYTES (WAVELEN*2) // Size of data in bytes
-#define WAVEPATH "/shared/mdapiano/mdaPianoData.raw" // Location of data on SD card (see "file-depends" in the XML)
+      <code.init><![CDATA[#define mdapiano_WAVELEN 586349 // Size of data file/array in shorts
+#define mdapiano_WAVEBYTES (mdapiano_WAVELEN*2) // Size of data in bytes
+#define mdapiano_WAVEPATH "/shared/mdapiano/mdaPianoData.raw" // Location of data on SD card (see "file-depends" in the XML)
 
 if(!PianoData::pianoData){
-	short* pianoData = (short*) sdram_malloc(WAVEBYTES);
+	short* pianoData = (short*) sdram_malloc(mdapiano_WAVEBYTES);
 	if(!pianoData){
 	   LogTextMessage("Malloc mdaPianoData in sdram failed!");
 	   return;
@@ -143,19 +143,19 @@ if(!PianoData::pianoData){
 	UINT bytes_read;
 	int i;
 	
-	err = f_open(&FileObject, WAVEPATH, FA_READ | FA_OPEN_EXISTING);
+	err = f_open(&FileObject, mdapiano_WAVEPATH, FA_READ | FA_OPEN_EXISTING);
 	if (err != FR_OK) {
-	   LogTextMessage("Open failed: %s", WAVEPATH);
+	   LogTextMessage("Open failed: %s", mdapiano_WAVEPATH);
 	   // clear array
-	   for (i = 0; i < WAVELEN; i++) {
+	   for (i = 0; i < mdapiano_WAVELEN; i++) {
 	       pianoData[i] = 0;
 	   }
 	   return;
 	}
-	err = f_read(&FileObject, pianoData, WAVEBYTES, &bytes_read);
-	if (err != FR_OK) {LogTextMessage("Read failed %s\n", WAVEPATH); return;}
+	err = f_read(&FileObject, pianoData, mdapiano_WAVEBYTES, &bytes_read);
+	if (err != FR_OK) {LogTextMessage("Read failed %s\n", mdapiano_WAVEPATH); return;}
 	err = f_close(&FileObject);
-	if (err != FR_OK) {LogTextMessage("Close failed %s\n", WAVEPATH); return;}
+	if (err != FR_OK) {LogTextMessage("Close failed %s\n", mdapiano_WAVEPATH); return;}
 
 	PianoData::pianoData = pianoData;
 	LogTextMessage("mdaPiano loading sample complete, SDRAM free %d", sdram_get_free() );
@@ -200,20 +200,20 @@ cmax = 0x7F;
 
 pgate = 0;]]></code.init>
       <code.krate><![CDATA[// Update params
-size = (int)(12.0f * param_2 - 6.0f);
-sizevel = 0.12f * param_3;
-muffvel = param_5 * param_5 * 5.0f;
+size = (int)(12.0f * mdapiano_param_2 - 6.0f);
+sizevel = 0.12f * mdapiano_param_3;
+muffvel = mdapiano_param_5 * mdapiano_param_5 * 5.0f;
 
-velsens = 1.0f + param_6 + param_6;
-if(param_6 < 0.25f) velsens -= 0.75f - 3.0f * param_6;
+velsens = 1.0f + mdapiano_param_6 + mdapiano_param_6;
+if(mdapiano_param_6 < 0.25f) velsens -= 0.75f - 3.0f * mdapiano_param_6;
 
-fine = param_9 - 0.5f;
-random = 0.077f * param_10 * param_10;
-stretch = 0.000434f * (param_11 - 0.5f);
+fine = mdapiano_param_9 - 0.5f;
+random = 0.077f * mdapiano_param_10 * mdapiano_param_10;
+stretch = 0.000434f * (mdapiano_param_11 - 0.5f);
 
-cdep = param_7 * param_7;
+cdep = mdapiano_param_7 * mdapiano_param_7;
 trim = 1.50f - 0.79f * cdep;
-width = 0.04f * param_7;  if(width > 0.03f) width = 0.03f;]]></code.krate>
+width = 0.04f * mdapiano_param_7;  if(width > 0.03f) width = 0.03f;]]></code.krate>
       <code.srate><![CDATA[//Note on and off
 {
   float l=99.0f;
@@ -244,7 +244,7 @@ width = 0.04f * param_7;  if(width > 0.03f) width = 0.03f;]]></code.krate>
 
       env = (0.5f + velsens) * powf(0.0078f * velocity, velsens); //velocity
 
-      l = 50.0f + param_4 * param_4 * muff + muffvel * (float)(velocity - 64); //muffle
+      l = 50.0f + mdapiano_param_4 * mdapiano_param_4 * muff + muffvel * (float)(velocity - 64); //muffle
       if(l < (55.0f + 0.25f * (float)note)) l = 55.0f + 0.25f * (float)note;
       if(l > 210.0f) l = 210.0f;
       ff = l * l * iFs;
@@ -257,13 +257,13 @@ width = 0.04f * param_7;  if(width > 0.03f) width = 0.03f;]]></code.krate>
       outl = l + l - outr;
 
       if(note < 44) note = 44; //limit max decay length
-      l = 2.0f * param_0;
-      if(l < 1.0f) l += 0.25f - 0.5f * param_0;
+      l = 2.0f * mdapiano_param_0;
+      if(l < 1.0f) l += 0.25f - 0.5f * mdapiano_param_0;
       dec = powf(M_E, -iFs * powf(M_E, -0.6f + 0.033f * note - l));
     }
   }else if(!inlet_gate && pgate) { // Falling edge i.e. note off
     if(note < 94){ //no release on highest notes
-      dec = powf(M_E, -iFs * powf(M_E, 2.0f + 0.017f * note - 2.0f * param_1));
+      dec = powf(M_E, -iFs * powf(M_E, 2.0f + 0.017f * note - 2.0f * mdapiano_param_1));
     }
   }
 }
